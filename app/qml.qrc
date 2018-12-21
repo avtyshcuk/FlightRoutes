@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>AppToolBar.qml</file>
+        <file>fonts/aerialattackfont.ttf</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>FlightPoints.qml</file>
+        <file>GeoPoint.qml</file>
+        <file>GeoPath.qml</file>
+        <file>MapMouseArea.qml</file>
+        <file>GeoRoutes.js</file>
+        <file>FlightItems.qml</file>
+    </qresource>
+</RCC>
