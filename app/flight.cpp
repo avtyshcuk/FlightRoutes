@@ -6,7 +6,7 @@ Flight::Flight(QObject *parent)
 
 }
 
-void Flight::addPoint(const QPointF &point)
+void Flight::addPoint(const QPointF &point, bool hasVirtual)
 {
     // First point
     if (mPoints.isEmpty()) {
@@ -21,15 +21,18 @@ void Flight::addPoint(const QPointF &point)
         return;
     }
 
-    // First segment
-    if (mPoints.size() == 1) {
+    // Real point has been added
+    const bool hasFirstSegment = mPoints.size() == 1;
+    if (hasFirstSegment || !hasVirtual) {
         mPoints << point;
         emit pointsChanged();
-        updateSegment(createLastSegment());
+        updateSegment(appendSegment());
 
         // Virtual segment is possible now
-        mHasVirtualPart = true;
-        emit hasVirtualPartChanged();
+        if (hasFirstSegment) {
+            mHasVirtualPart = hasVirtual;
+            emit hasVirtualPartChanged();
+        }
         return;
     }
 
@@ -49,7 +52,7 @@ void Flight::addVirtualPoint(const QPointF &point)
         mPoints.last() = point;
     }
 
-    auto segment = createLastSegment();
+    auto segment = appendSegment();
     segment.setIsVirtual(true);
     updateSegment(segment);
 }
@@ -62,24 +65,72 @@ bool Flight::isLastVirtual() const
     return mFlightSegments.last().isVirtual();
 }
 
-FlightSegment Flight::createLastSegment()
+void Flight::updateFlight(int index, const QPointF &point)
 {
-    const int index = mPoints.size() - 1;
-    if (index == 1) {
-        QPointF start = mPoints.at(index - 1).toPointF();
-        QPointF end = mPoints.at(index).toPointF();
-        return FlightSegment(QLineF(start, end));
+    mIsUpdateValid = true;
+
+    for (int i = index; i < mFlightSegments.size() || i == size(); ++i) {
+        // First, last and previous segment hanlding
+        if (i < 2 || i == index) {
+
+            // Previous segment update
+            if (i == index) {
+                const int segmentIndex = i > 0 ? i - 1 : 0;
+                auto segment = createSegment(i, point, true, &mIsUpdateValid);
+                mFlightSegments.replace(segmentIndex, segment);
+                emit flightPartUpdate(segmentIndex);
+            }
+            continue;
+        }
+
+        const auto &previousSegment = mFlightSegments.at(i - 2);
+        QPointF start = i == 2 ? previousSegment.line().p1()
+                               : previousSegment.manoeuvre().exitPoint();
+        QPointF middle = i == index + 1 ? point
+                                        : mFlightSegments.at(i - 1).line().p1();
+        QPointF end = mFlightSegments.at(i - 1).line().p2();
+
+        auto manoeuvre = Manoeuvre(start, middle, end, mPixelRadius);
+        if (!manoeuvre.isValid()) {
+            mIsUpdateValid = false;
+        }
+        auto currentSegment = FlightSegment(QLineF(middle, end), true, manoeuvre);
+        mFlightSegments.replace(i - 1, currentSegment);
+        emit flightPartUpdate(i - 1);
+    }
+}
+
+FlightSegment Flight::createSegment(int index, const QPointF &point,
+                                    bool isVirtual, bool *isValid)
+{
+    if (index == 0) {
+        const QPointF &end = mPoints.at(index + 1).toPointF();
+        return FlightSegment(QLineF(point, end), isVirtual);
     }
 
-    auto previousSegment = mFlightSegments.at(index - 2);
+    if (index == 1) {
+        const QPointF &start = mPoints.at(index - 1).toPointF();
+        return FlightSegment(QLineF(start, point), isVirtual);
+    }
+
+    const auto &previousSegment = mFlightSegments.at(index - 2);
     auto isSecondSegment = index == 2;
     QPointF start = isSecondSegment ? previousSegment.line().p1()
                                     : previousSegment.manoeuvre().exitPoint();
     QPointF middle = previousSegment.line().p2();
-    QPointF end = mPoints.at(index).toPointF();
+    QPointF end = point;
 
     auto manoeuvre = Manoeuvre(start, middle, end, mPixelRadius);
-    return FlightSegment(QLineF(middle, end), manoeuvre);
+    if (isValid && !manoeuvre.isValid()) {
+        *isValid = false;
+    }
+    return FlightSegment(QLineF(middle, end), isVirtual, manoeuvre);
+}
+
+FlightSegment Flight::appendSegment()
+{
+    const int index = mPoints.size() - 1;
+    return createSegment(index, mPoints.at(index).toPointF(), false);
 }
 
 void Flight::updateSegment(const FlightSegment &segment)

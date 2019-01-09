@@ -5,6 +5,8 @@
 
 #include "manoeuvre.h"
 
+#include <QDebug>
+
 void FlightGeoRoute::addGeoPoint(const QGeoCoordinate &geoPoint)
 {
     // Formally it's not correct to assume that
@@ -19,6 +21,26 @@ void FlightGeoRoute::addGeoPoint(const QGeoCoordinate &geoPoint)
     }
 
     createLastGeoSegment(geoPoint);
+}
+
+void FlightGeoRoute::updateRoute()
+{
+    mGeoPath.clear();
+    auto geoPoints = mGeoPoints;
+    mGeoPoints.clear();
+
+    for (const auto &point : geoPoints) {
+        const auto geoPoint = point.value<QGeoCoordinate>();
+        mGeoPoints << QVariant::fromValue(geoPoint);
+
+        if (mGeoPath.isEmpty()) {
+            mStart = geoPoint;
+            mGeoPath << QVariant::fromValue(geoPoint);
+            continue;
+        }
+
+        createLastGeoSegment(geoPoint);
+    }
 }
 
 void FlightGeoRoute::createLastGeoSegment(const QGeoCoordinate &point)

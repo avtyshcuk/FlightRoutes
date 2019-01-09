@@ -1,17 +1,20 @@
 #include "flightregistry.h"
 
+#include <QDebug>
+
 FlightRegistry::FlightRegistry(QObject *parent)
     : QObject(parent)
 {
 
 }
 
-void FlightRegistry::createNewFlight()
+void FlightRegistry::resetActiveFlight()
 {
     mActiveFlight = std::make_unique<Flight>();
     mFlightModel = std::make_unique<FlightModel>();
     mFlightModel->setFlight(mActiveFlight.get());
     emit flightModelChanged();
+    mActiveFlightId = -1;
 
     mActiveGeoRoute = FlightGeoRoute();
 
@@ -21,27 +24,29 @@ void FlightRegistry::createNewFlight()
 
 void FlightRegistry::finalizeActiveFlight()
 {
-    auto flightId = freeFlightId();
-    mFlightGeoRoutes[flightId] = mActiveGeoRoute;
+    mActiveFlightId = freeFlightId();
+    emit activeFlightIdChanged();
+
+    mFlightGeoRoutes[mActiveFlightId] = mActiveGeoRoute;
 
     mHasActiveFlight = false;
     emit hasActiveFlightChanged();
 }
 
-void FlightRegistry::updateActiveFlight(const QGeoCoordinate &geoPoint,
-                                        const QPointF &point)
+void FlightRegistry::addNewPoint(const QGeoCoordinate &geoPoint, const QPointF &point,
+                                 bool hasVirtual)
 {
     if (!mHasActiveFlight) {
         return;
     }
 
-    mActiveFlight->addPoint(point);
+    mActiveFlight->addPoint(point, hasVirtual);
     if (mActiveFlight->isLastSegmentValid()) {
         mActiveGeoRoute.addGeoPoint(geoPoint);
     }
 }
 
-void FlightRegistry::updateVirtualPart(const QPointF &point)
+void FlightRegistry::addVirtualPoint(const QPointF &point)
 {
     mActiveFlight->addVirtualPoint(point);
 }
@@ -61,10 +66,66 @@ void FlightRegistry::setCurrentPixelRadius(double radius)
     mActiveFlight->setPixelRadius(radius);
 }
 
+QVariantList FlightRegistry::flightGeoPoints(int flightId) const
+{
+    return mFlightGeoRoutes[flightId].geoPoints();
+}
+
+void FlightRegistry::prepareFlightUpdate(int flightId, const QVariantList &points,
+                                         double radius)
+{
+    resetActiveFlight();
+    setCurrentPixelRadius(radius);
+
+    for (int i = 0; i < points.size(); ++i) {
+        auto point = points.at(i).toPointF();
+        auto geoPoint = mFlightGeoRoutes[flightId].geoPoints().at(i);
+        addNewPoint(geoPoint.value<QGeoCoordinate>(), point, false);
+    }
+
+    mActiveFlightId = flightId;
+    emit activeFlightIdChanged();
+
+    mActiveGeoRoute = mFlightGeoRoutes[flightId];
+
+    setModifiedIndex(-1);
+    mIsBeingModified = true;
+    emit isBeingModifiedChanged();
+}
+
+void FlightRegistry::setModifiedIndex(int modifiedIndex)
+{
+    mModifiedIndex = modifiedIndex;
+    emit modifiedIndexChanged();
+}
+
+void FlightRegistry::finalizeFlightUpdate(int index, const QGeoCoordinate &geoPoint)
+{
+    if (mActiveFlight->isUpdateValid()) {
+        QVariantList geoPoints = mActiveGeoRoute.geoPoints();
+        geoPoints.replace(index, QVariant::fromValue(geoPoint));
+        mActiveGeoRoute.setGeoPoints(geoPoints);
+        mActiveGeoRoute.updateRoute();
+
+        mFlightGeoRoutes[mActiveFlightId] = mActiveGeoRoute;
+    }
+
+    mHasActiveFlight = false;
+    emit hasActiveFlightChanged();
+    
+    mIsBeingModified = false;
+    emit isBeingModifiedChanged();
+}
+
+void FlightRegistry::updateActiveFlight(int index, const QPointF &point)
+{
+    mActiveFlight->updateFlight(index, point);
+}
+
 int FlightRegistry::freeFlightId()
 {
     // Keys in map are sorted, first absent index is free ID
-    const auto& keys = mFlightGeoRoutes.keys();
+    const auto &keys = mFlightGeoRoutes.keys();
     for (int index = 0; index < keys.size(); ++index) {
         if (keys[index] != index) {
             return index;

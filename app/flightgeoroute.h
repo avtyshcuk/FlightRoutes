@@ -9,9 +9,11 @@ class FlightGeoRoute
 {
 public:
     void addGeoPoint(const QGeoCoordinate &geoPoint);
+    void updateRoute();
 
     QVariantList geoPoints() const { return mGeoPoints; }
     QVariantList geoPath() const { return mGeoPath; }
+    void setGeoPoints(const QVariantList &list) { mGeoPoints = list; }
 
 private:
     void createLastGeoSegment(const QGeoCoordinate &point);

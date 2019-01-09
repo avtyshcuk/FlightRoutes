@@ -25,7 +25,7 @@ ToolBar {
                 font.family: myCustomFont.name
                 onClicked: {
                     if (!flightRegistry.hasActiveFlight) {
-                        flightRegistry.createNewFlight();
+                        flightRegistry.resetActiveFlight();
                         var radius = GeoRoutes.calculateRadius();
                         flightRegistry.setCurrentPixelRadius(radius);
                     } else {
@@ -39,7 +39,8 @@ ToolBar {
 
     QtObject {
         id: internal
-        readonly property string addIcon: flightRegistry.hasActiveFlight ? "\uE808" : "\uE807"
+        readonly property string addIcon: flightRegistry.hasActiveFlight &&
+                                          !flightRegistry.isBeingModified ? "\uE808" : "\uE807"
     }
 
 }

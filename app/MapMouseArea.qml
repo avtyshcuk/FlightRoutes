@@ -1,6 +1,8 @@
 import QtQuick 2.9
 import QtLocation 5.9
 
+import "GeoRoutes.js" as GeoRoutes
+
 MouseArea {
     id: mapMouseArea
     anchors.fill: parent
@@ -19,13 +21,29 @@ MouseArea {
 
         var point = Qt.point(mouseX, mouseY);
         var coordinate = map.toCoordinate(point);
-        flightRegistry.updateActiveFlight(coordinate, point);
+        flightRegistry.addNewPoint(coordinate, point);
     }
 
     onPositionChanged: {
         if (hoverEnabled) {
             var point = Qt.point(mouseX, mouseY)
-            flightRegistry.updateVirtualPart(point);
+            flightRegistry.addVirtualPoint(point);
+        }
+    }
+
+    Connections {
+        target: flightRegistry
+
+        onHasActiveFlightChanged: {
+            if (!flightRegistry.hasActiveFlight && !flightRegistry.isBeingModified) {
+                GeoRoutes.registerRoute(map);
+            }
+        }
+
+        onIsBeingModifiedChanged: {
+            if (!flightRegistry.isBeingModified) {
+                GeoRoutes.updateGeoRoute(map);
+            }
         }
     }
 

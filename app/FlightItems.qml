@@ -15,5 +15,6 @@ Repeater {
         manoeuvreStartAngle: startAngle
         manoeuvreSpanAngle: spanAngle
         isVirtualLink: isVirtual
+        visible: !flightRegistry.isBeingModified || isVirtual
     }
 }

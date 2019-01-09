@@ -1,10 +1,26 @@
+var routesRegistry = {};
+
+function registerRoute(map) {
+    var id = flightRegistry.activeFlightId;
+    routesRegistry[id] = [];
+
+    addGeoRoute(map);
+    addGeoPoints(map);
+}
+
 function addGeoPoints(map) {
     var points = flightRegistry.activeGeoPoints();
+    var id = flightRegistry.activeFlightId;
     for (var i = 0; i < points.length; ++i) {
         var coordinate = points[i];
-        var params = {"coordinate": coordinate};
+        var params = {
+            "coordinate": coordinate,
+            "id": id,
+            "index": i
+        };
         var component = Qt.createComponent("GeoPoint.qml");
         var geoPoint = component.createObject(map, params);
+        routesRegistry[id].push(geoPoint);
         map.addMapItem(geoPoint);
     }
 }
@@ -13,7 +29,19 @@ function addGeoRoute(map) {
     var path = flightRegistry.activeGeoPath();
     var pathComponent = Qt.createComponent("GeoPath.qml");
     var geoPath = pathComponent.createObject(map, {"path": path});
+    var id = flightRegistry.activeFlightId;
+    routesRegistry[id].push(geoPath);
     map.addMapItem(geoPath);
+}
+
+function updateGeoRoute(map) {
+
+    var id = flightRegistry.activeFlightId;
+    for (var i = 0; i < routesRegistry[id].length; ++i) {
+        map.removeMapItem(routesRegistry[id][i]);
+    }
+    addGeoRoute(map);
+    addGeoPoints(map);
 }
 
 function calculateRadius() {
@@ -23,9 +51,27 @@ function calculateRadius() {
     // check "geoflighroute.cpp" for details
     var mapCenter = map.center;
     var radiusPoint = mapCenter.atDistanceAndAzimuth(21770, 0);
-    var centerPixel = map.fromCoordinate(mapCenter);
-    var pointPixel = map.fromCoordinate(radiusPoint);
+    var centerPixel = map.fromCoordinate(mapCenter, false);
+    var pointPixel = map.fromCoordinate(radiusPoint, false);
     var radiusPixel = centerPixel.y - pointPixel.y;
 
     return radiusPixel;
+}
+
+function geoToPixelPoints(geoPoints) {
+    var points = [];
+    for (var i = 0; i < geoPoints.length; ++i) {
+        points.push(map.fromCoordinate(geoPoints[i], false));
+    }
+
+    return points;
+}
+
+function createPixelRoute(id, index) {
+    var geoPoints = flightRegistry.flightGeoPoints(id);
+    var points = geoToPixelPoints(geoPoints);
+    var radius = calculateRadius();
+
+    flightRegistry.prepareFlightUpdate(id, points, radius);
+    flightRegistry.setModifiedIndex(index);
 }

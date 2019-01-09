@@ -8,7 +8,7 @@
 class FlightSegment
 {
 public:
-    FlightSegment(const QLineF &line,
+    FlightSegment(const QLineF &line, bool isVirtual = false,
                   const Manoeuvre &manoeuvre = Manoeuvre());
 
     QLineF line() const { return mLine; }
@@ -19,8 +19,8 @@ public:
 
 private:
     QLineF mLine;
+    bool mIsVirtual;
     Manoeuvre mManoeuvre;
-    bool mIsVirtual = false;
 };
 
 #endif // FLIGHTSEGMENT_H

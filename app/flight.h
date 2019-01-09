@@ -15,12 +15,14 @@ public:
     int size() const { return mFlightSegments.size(); }
     QVariantList points() const { return mPoints; }
     FlightSegment flightSegment(int index) const;
-    void addPoint(const QPointF &point);
+    void addPoint(const QPointF &point, bool hasVirtual = true);
     bool isLastSegmentValid() const { return mIsLastSegmentValid; }
     void setPixelRadius(double radius) { mPixelRadius = radius; }
     bool hasVirtualPart() const { return mHasVirtualPart; }
     void addVirtualPoint(const QPointF &point);
     bool isLastVirtual() const;
+    void updateFlight(int index, const QPointF &point);
+    bool isUpdateValid() const { return mIsUpdateValid; }
 
 signals:
     void pointsChanged();
@@ -30,7 +32,9 @@ signals:
     void flightPartUpdate(int index);
 
 private:
-    FlightSegment createLastSegment();
+    FlightSegment createSegment(int index, const QPointF &point,
+                                bool isVirtual, bool *isValid = nullptr);
+    FlightSegment appendSegment();
     void updateSegment(const FlightSegment &segment);
 
 private:
@@ -39,6 +43,7 @@ private:
     bool mIsLastSegmentValid = true;
     double mPixelRadius;
     bool mHasVirtualPart = false;
+    bool mIsUpdateValid = false;
 };
 
 #endif // FLIGHT_H
