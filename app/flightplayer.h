@@ -24,6 +24,7 @@ public:
     void setIsStopped(bool isStopped);
 
     Q_INVOKABLE QVariantList points() const;
+    Q_INVOKABLE QVariantList azimuths() const;
 
 signals:
     void isPlayingChanged();
@@ -34,9 +35,9 @@ private:
     struct Segment
     {
         QGeoCoordinate start;
-        double distance;
-        double azimuth;
-        double speed;
+        double distance = 0.0;
+        double azimuth = 0.0;
+        double speed = 0.0;
     };
 
     void calculateSegments();
@@ -46,6 +47,7 @@ private:
         QGeoCoordinate position;
         int index = 0;
         double distance = 0.0;
+        double azimuth = 0.0;
         bool isFinished = false;
     };
 

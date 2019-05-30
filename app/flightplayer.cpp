@@ -60,6 +60,18 @@ QVariantList FlightPlayer::points() const
     return points;
 }
 
+QVariantList FlightPlayer::azimuths() const
+{
+    QVariantList azimuths;
+    auto it = mFlightPoints.constBegin();
+    while (it != mFlightPoints.constEnd()) {
+        azimuths << QVariant::fromValue(it.value().azimuth);
+        ++it;
+    }
+
+    return azimuths;
+}
+
 void FlightPlayer::calculateSegments()
 {
     mSegments.clear();
@@ -124,6 +136,7 @@ void FlightPlayer::updateFlightPoints()
         const double &azimuth = currentSegment.azimuth;
         const QGeoCoordinate &start = currentSegment.start;
         point.position = start.atDistanceAndAzimuth(point.distance, azimuth);
+        point.azimuth = currentSegment.azimuth;
 
         ++it;
     }

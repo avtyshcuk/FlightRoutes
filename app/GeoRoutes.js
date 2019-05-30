@@ -88,11 +88,13 @@ function updateFlightPoints() {
     flightPointsRegistry = [];
 
     var points = flightPlayer.points();
+    var azimuths = flightPlayer.azimuths();
     for (var j = 0; j < points.length; ++j) {
         var coordinate = points[j];
+        var azimuth = azimuths[j];
         var params = {
             "coordinate": coordinate,
-
+            "azimuth": azimuth
         };
         var component = Qt.createComponent("GeoAirPlane.qml");
         var geoFlightPoint = component.createObject(map, params);

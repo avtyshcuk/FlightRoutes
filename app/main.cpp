@@ -5,6 +5,7 @@
 #include "flightregistry.h"
 #include "flightitem.h"
 #include "flightplayer.h"
+#include "flightairplane.h"
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +17,7 @@ int main(int argc, char *argv[])
     QQmlContext *rootContext = engine.rootContext();
 
     qmlRegisterType<FlightItem>("Flight", 1, 0, "FlightItem");
+    qmlRegisterType<FlightAirPlane>("Flight", 1, 0, "FlightAirPlane");
 
     FlightRegistry flightRegistry;
     rootContext->setContextProperty("flightRegistry", &flightRegistry);
