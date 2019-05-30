@@ -14,6 +14,10 @@ MapQuickItem {
         id: referencePoint
         width: 20
         height: width
-        rotation: azimuth
+        transform: Rotation {
+            origin.x: 10
+            origin.y: 10
+            angle: azimuth
+        }
     }
 }
