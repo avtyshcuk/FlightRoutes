@@ -20,7 +20,8 @@ SOURCES += \
     flightgeoroute.cpp \
     flightsegment.cpp \
     flightitem.cpp \
-    manoeuvre.cpp
+    manoeuvre.cpp \
+    flightplayer.cpp
 
 RESOURCES += qml.qrc
 
@@ -42,4 +43,5 @@ HEADERS += \
     flightgeoroute.h \
     flightsegment.h \
     flightitem.h \
-    manoeuvre.h
+    manoeuvre.h \
+    flightplayer.h

@@ -3,9 +3,6 @@
 
 #include <memory>
 
-#include <QObject>
-#include <QGeoCoordinate>
-
 #include "flight.h"
 #include "flightmodel.h"
 #include "flightgeoroute.h"
@@ -46,6 +43,7 @@ public:
     bool isBeingModified() const { return mIsBeingModified; }
     int modifiedIndex() const { return mModifiedIndex; }
     FlightModel *flightModel() { return mFlightModel.get(); }
+    QMap<int, FlightGeoRoute> flightGeoRoutes() { return mFlightGeoRoutes; }
 
 signals:
     void hasActiveFlightChanged();

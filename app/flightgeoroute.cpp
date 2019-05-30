@@ -5,7 +5,12 @@
 
 #include "manoeuvre.h"
 
-#include <QDebug>
+FlightGeoRoute::FlightGeoRoute(double radius, double maxSpeed)
+    : mRadius(radius)
+    , mMaxSpeed(maxSpeed)
+{
+
+}
 
 void FlightGeoRoute::addGeoPoint(const QGeoCoordinate &geoPoint)
 {
@@ -57,20 +62,19 @@ void FlightGeoRoute::createLastGeoSegment(const QGeoCoordinate &point)
     const auto &middle = toPlaneCoordinate(mStart, mMiddle);
     const auto &finish = toPlaneCoordinate(mStart, point);
 
-    // Assume that Boeing-747 has maximum speed 920km/h
-    // G-force is 3g, so radius = v*v/g-force -> 21770m
-    Manoeuvre manoeuvre(start, middle, finish, 21770);
+    Manoeuvre manoeuvre(start, middle, finish, mRadius);
     manoeuvre.toGeoManoeuvre();
 
     // Let's go over manoeuvre arc and find geo points
-    auto arcAngle = 0.0;
+    const double angleIncrement = 0.01;
+    double arcAngle = angleIncrement;
     QGeoCoordinate arcGeoPoint;
     while (arcAngle < manoeuvre.spanAngle()) {
         auto sign = manoeuvre.isLeftTurn() ? 1 : -1;
         auto angle = manoeuvre.startAngle() - sign*arcAngle;
         auto radius = manoeuvre.radius();
         QPointF arcPoint(radius*qSin(angle), radius*qCos(angle));
-        arcAngle += 0.01;
+        arcAngle += angleIncrement;
 
         arcGeoPoint = toGeoCoordinate(mStart, manoeuvre.circlePoint() + arcPoint);
         mGeoPath << QVariant::fromValue(arcGeoPoint);

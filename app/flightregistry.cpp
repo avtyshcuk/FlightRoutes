@@ -16,7 +16,9 @@ void FlightRegistry::resetActiveFlight()
     emit flightModelChanged();
     mActiveFlightId = -1;
 
-    mActiveGeoRoute = FlightGeoRoute();
+    const double radius = mActiveFlight->radius();
+    const double maxSpeed = mActiveFlight->maxSpeed();
+    mActiveGeoRoute = FlightGeoRoute(radius, maxSpeed);
 
     mHasActiveFlight = true;
     emit hasActiveFlightChanged();
@@ -24,10 +26,13 @@ void FlightRegistry::resetActiveFlight()
 
 void FlightRegistry::finalizeActiveFlight()
 {
-    mActiveFlightId = freeFlightId();
+    if (mActiveFlight->size() > 0) {
+        mActiveFlightId = freeFlightId();
+        mFlightGeoRoutes[mActiveFlightId] = mActiveGeoRoute;
+    } else {
+        mActiveFlightId = -1;
+    }
     emit activeFlightIdChanged();
-
-    mFlightGeoRoutes[mActiveFlightId] = mActiveGeoRoute;
 
     mHasActiveFlight = false;
     emit hasActiveFlightChanged();
@@ -113,6 +118,7 @@ void FlightRegistry::finalizeFlightUpdate(int index, const QGeoCoordinate &geoPo
     mHasActiveFlight = false;
     emit hasActiveFlightChanged();
     
+    setModifiedIndex(-1);
     mIsBeingModified = false;
     emit isBeingModifiedChanged();
 }

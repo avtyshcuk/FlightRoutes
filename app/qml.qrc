@@ -10,5 +10,6 @@
         <file>MapMouseArea.qml</file>
         <file>GeoRoutes.js</file>
         <file>FlightItems.qml</file>
+        <file>GeoAirPlane.qml</file>
     </qresource>
 </RCC>

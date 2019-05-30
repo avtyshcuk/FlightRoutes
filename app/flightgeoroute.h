@@ -8,12 +8,15 @@
 class FlightGeoRoute
 {
 public:
+    FlightGeoRoute(double radius = 0.0, double maxSpeed = 0.0);
+
     void addGeoPoint(const QGeoCoordinate &geoPoint);
     void updateRoute();
 
     QVariantList geoPoints() const { return mGeoPoints; }
     QVariantList geoPath() const { return mGeoPath; }
     void setGeoPoints(const QVariantList &list) { mGeoPoints = list; }
+    double maxSpeed() const { return mMaxSpeed; }
 
 private:
     void createLastGeoSegment(const QGeoCoordinate &point);
@@ -25,6 +28,8 @@ private:
     QVariantList mGeoPath;
     QGeoCoordinate mStart;
     QGeoCoordinate mMiddle;
+    double mRadius;
+    double mMaxSpeed;
 };
 
 #endif // FLIGHTGEOROUTE_H

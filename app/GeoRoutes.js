@@ -1,7 +1,12 @@
 var routesRegistry = {};
+var flightPointsRegistry = [];
 
 function registerRoute(map) {
     var id = flightRegistry.activeFlightId;
+    if (id == -1) {
+        return;
+    }
+
     routesRegistry[id] = [];
 
     addGeoRoute(map);
@@ -74,4 +79,24 @@ function createPixelRoute(id, index) {
 
     flightRegistry.prepareFlightUpdate(id, points, radius);
     flightRegistry.setModifiedIndex(index);
+}
+
+function updateFlightPoints() {
+    for (var i = 0; i < flightPointsRegistry.length; ++i) {
+        map.removeMapItem(flightPointsRegistry[i]);
+    }
+    flightPointsRegistry = [];
+
+    var points = flightPlayer.points();
+    for (var j = 0; j < points.length; ++j) {
+        var coordinate = points[j];
+        var params = {
+            "coordinate": coordinate,
+
+        };
+        var component = Qt.createComponent("GeoAirPlane.qml");
+        var geoFlightPoint = component.createObject(map, params);
+        flightPointsRegistry.push(geoFlightPoint)
+        map.addMapItem(geoFlightPoint);
+    }
 }

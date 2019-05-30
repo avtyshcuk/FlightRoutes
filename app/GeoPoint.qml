@@ -27,6 +27,10 @@ MapQuickItem {
             hoverEnabled: true
 
             onEntered: {
+                if (!flightPlayer.isStopped) {
+                    return;
+                }
+
                 referencePoint.width = referencePoint.editModeSize;
                 if (!flightRegistry.hasActiveFlight) {
                     GeoRoutes.createPixelRoute(id, index);
@@ -35,6 +39,10 @@ MapQuickItem {
             }
 
             onExited: {
+                if (!flightPlayer.isStopped) {
+                    return;
+                }
+
                 flightRegistry.finalizeFlightUpdate(index, Qt.point(x, y));
             }
         }

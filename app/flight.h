@@ -23,6 +23,8 @@ public:
     bool isLastVirtual() const;
     void updateFlight(int index, const QPointF &point);
     bool isUpdateValid() const { return mIsUpdateValid; }
+    double maxSpeed() const { return mMaxSpeed; }
+    double radius() const;
 
 signals:
     void pointsChanged();
@@ -44,6 +46,8 @@ private:
     double mPixelRadius;
     bool mHasVirtualPart = false;
     bool mIsUpdateValid = false;
+    double mMaxSpeed;
+    double mRadius;
 };
 
 #endif // FLIGHT_H

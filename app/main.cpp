@@ -4,6 +4,7 @@
 
 #include "flightregistry.h"
 #include "flightitem.h"
+#include "flightplayer.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,6 +19,9 @@ int main(int argc, char *argv[])
 
     FlightRegistry flightRegistry;
     rootContext->setContextProperty("flightRegistry", &flightRegistry);
+
+    FlightPlayer flightPlayer(&flightRegistry);
+    rootContext->setContextProperty("flightPlayer", &flightPlayer);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())

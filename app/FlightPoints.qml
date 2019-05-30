@@ -29,7 +29,7 @@ Repeater {
             visible: flightRegistry.isBeingModified
 
             onReleased: {
-                var coordinate = map.toCoordinate(position);
+                var coordinate = map.toCoordinate(position, false);
                 flightRegistry.finalizeFlightUpdate(index, coordinate);
                 internal.isMoving = false;
             }

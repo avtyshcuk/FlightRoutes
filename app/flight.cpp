@@ -2,6 +2,7 @@
 
 Flight::Flight(QObject *parent)
     : QObject(parent)
+    , mMaxSpeed(255.5) // 920 km/h
 {
 
 }
@@ -150,4 +151,11 @@ void Flight::updateSegment(const FlightSegment &segment)
 FlightSegment Flight::flightSegment(int index) const
 {
     return mFlightSegments.at(index);
+}
+
+double Flight::radius() const
+{
+    // Assume that Boeing-747 has maximum speed 920km/h
+    // G-force is 3g, so radius = v*v/g-force -> 21770m
+    return mMaxSpeed * mMaxSpeed / 3;
 }

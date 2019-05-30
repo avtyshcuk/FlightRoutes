@@ -47,6 +47,14 @@ MouseArea {
         }
     }
 
+    Connections {
+        target: flightPlayer
+
+        onFlightPointsUpdated: {
+            GeoRoutes.updateFlightPoints();
+        }
+    }
+
     QtObject {
         id: internal
         property bool hasVirtual: flightRegistry.hasActiveFlight &&

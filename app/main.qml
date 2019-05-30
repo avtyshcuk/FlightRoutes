@@ -19,6 +19,8 @@ ApplicationWindow {
         plugin: Plugin { name: "osm" }
         center: QtPositioning.coordinate(50.45, 30.52)
         gesture.enabled: !flightRegistry.hasActiveFlight
+        maximumZoomLevel: 10
+        minimumZoomLevel: 5
         zoomLevel: 7
 
         MapMouseArea { id: mapMouseArea }
