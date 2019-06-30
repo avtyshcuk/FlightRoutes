@@ -1,7 +1,5 @@
 #include "flightregistry.h"
 
-#include <QDebug>
-
 FlightRegistry::FlightRegistry(QObject *parent)
     : QObject(parent)
 {

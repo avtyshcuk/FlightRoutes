@@ -22,7 +22,9 @@ SOURCES += \
     flightitem.cpp \
     manoeuvre.cpp \
     flightplayer.cpp \
-    flightairplane.cpp
+    flightairplane.cpp \
+    beamposition.cpp \
+    flightpositions.cpp
 
 RESOURCES += qml.qrc
 
@@ -46,4 +48,6 @@ HEADERS += \
     flightitem.h \
     manoeuvre.h \
     flightplayer.h \
-    flightairplane.h
+    flightairplane.h \
+    beamposition.h \
+    flightpositions.h
