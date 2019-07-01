@@ -1,7 +1,7 @@
 #include "flightpositions.h"
 
-#include "flightplayer.h"
-#include "beamposition.h"
+#include <QRandomGenerator>
+#include <QDebug>
 
 FlightPositions::FlightPositions(QObject *parent)
     : QUdpSocket(parent)
@@ -9,30 +9,53 @@ FlightPositions::FlightPositions(QObject *parent)
 
 }
 
-void FlightPositions::setFlightPlayer(FlightPlayer *flightPlayer)
+void FlightPositions::setFlightPlayerPoints(const QVariantList &points)
 {
-    mFlightPlayer = flightPlayer;
+    mPoints = points;
 }
 
-void FlightPositions::setBeamPosition(BeamPosition *beamPosition)
+void FlightPositions::sendFlightPoints(const QGeoCoordinate &samCoordinate,
+                                       qreal range, qreal angle)
 {
-    mBeamPosition = beamPosition;
+    for (int i = 0; i < mPoints.size(); ++i) {
+        auto coordinate = mPoints.at(i).value<QGeoCoordinate>();
+        auto distance = samCoordinate.distanceTo(coordinate);
+        auto azimuth = samCoordinate.azimuthTo(coordinate);
 
-    connect(mBeamPosition, &BeamPosition::beamPositionUpdated, [this]{
-        auto samPosition = mBeamPosition->samPosition();
-        auto samBeamRange = mBeamPosition->samBeamRange();
-        auto samBeamAngle = mBeamPosition->samBeamAngle();
-        for (auto point : mFlightPlayer->points()) {
-            auto coordinate = point.value<QGeoCoordinate>();
-            auto distance = samPosition.distanceTo(coordinate);
-            auto azimuth = samPosition.azimuthTo(coordinate);
-
-            if (distance < samBeamRange && azimuth > mCurrentBeamAngle && azimuth < samBeamAngle) {
-                QString data = QString("%1,%2").arg(coordinate.latitude()).arg(coordinate.longitude());
-                writeDatagram(data.toUtf8(), QHostAddress::LocalHost, 45455);
+        if (distance < range && azimuth > mCurrentBeamAngle && azimuth < angle) {
+            if (!isDatagramNeeded(i)) {
+                continue;
             }
-        }
 
-        mCurrentBeamAngle = samBeamAngle;
-    });
+            QString data = QString("%1,%2").arg(coordinate.latitude()).arg(coordinate.longitude());
+            writeDatagram(data.toUtf8(), QHostAddress::LocalHost, 45455);
+        }
+    }
+
+    mCurrentBeamAngle = angle;
+}
+
+// Simulation data sending issues such as,
+// noise, channel interruption, clouds, etc
+bool FlightPositions::isDatagramNeeded(int pointIndex)
+{
+    if (mLostDatagramsCounters.contains(pointIndex)) {
+        mLostDatagramsCounters[pointIndex]++;
+        if (mLostDatagramsCounters[pointIndex] >= MAX_DATAGRAM_LOST_COUNT) {
+            mLostDatagramsCounters.remove(pointIndex);
+            return true;
+        }
+        return false;
+    }
+
+    auto randomValue = QRandomGenerator::global()->generateDouble();
+    if (randomValue > 0.2) {
+        return true;
+    }
+
+    if (randomValue < 0.05) {
+        mLostDatagramsCounters[pointIndex] = 0;
+    }
+
+    return false;
 }

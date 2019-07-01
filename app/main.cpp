@@ -6,8 +6,7 @@
 #include "flightitem.h"
 #include "flightplayer.h"
 #include "flightairplane.h"
-#include "beamposition.h"
-#include "flightpositions.h"
+#include "flighttrackerserver.h"
 
 int main(int argc, char *argv[])
 {
@@ -27,10 +26,8 @@ int main(int argc, char *argv[])
     FlightPlayer flightPlayer(&flightRegistry);
     rootContext->setContextProperty("flightPlayer", &flightPlayer);
 
-    BeamPosition beamPosition;
-    FlightPositions flightPositions;
-    flightPositions.setBeamPosition(&beamPosition);
-    flightPositions.setFlightPlayer(&flightPlayer);
+    FlightTrackerServer flightTrackerServer;
+    flightTrackerServer.setFlightPlayer(&flightPlayer);
 
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
     if (engine.rootObjects().isEmpty())

@@ -12,17 +12,18 @@ BeamPosition::BeamPosition(QObject *parent)
     bind(45454, QUdpSocket::ShareAddress);
     QObject::connect(this, &QUdpSocket::readyRead, [this]{
         while (hasPendingDatagrams()) {
+
             auto datagram = receiveDatagram();
-            auto dataString = QString::fromUtf8(datagram.data());
-            auto dataList = dataString.split(',');
-            auto samLatitude = dataList.at(0).toDouble();
-            auto samLongitude = dataList.at(1).toDouble();
+            auto data = QString::fromUtf8(datagram.data());
+            auto beamParameters = data.split(',');
 
-            mSamPosition = QGeoCoordinate(samLatitude, samLongitude);
-            mSamBeamRange = dataList.at(2).toDouble();
-            mSamBeamAngle = dataList.at(3).toDouble();
+            auto latitude = beamParameters.at(0).toDouble();
+            auto longitude = beamParameters.at(1).toDouble();
+            auto range = beamParameters.at(2).toDouble();
+            auto angle = beamParameters.at(3).toDouble();
 
-            emit beamPositionUpdated();
+            emit beamParametersUpdated(QGeoCoordinate(latitude, longitude),
+                                       range, angle);
         }
     });
 }

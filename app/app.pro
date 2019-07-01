@@ -24,7 +24,8 @@ SOURCES += \
     flightplayer.cpp \
     flightairplane.cpp \
     beamposition.cpp \
-    flightpositions.cpp
+    flightpositions.cpp \
+    flighttrackerserver.cpp
 
 RESOURCES += qml.qrc
 
@@ -50,4 +51,5 @@ HEADERS += \
     flightplayer.h \
     flightairplane.h \
     beamposition.h \
-    flightpositions.h
+    flightpositions.h \
+    flighttrackerserver.h

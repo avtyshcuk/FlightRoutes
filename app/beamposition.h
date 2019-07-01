@@ -10,17 +10,9 @@ class BeamPosition : public QUdpSocket
 public:
     explicit BeamPosition(QObject *parent = nullptr);
 
-    QGeoCoordinate samPosition() const { return mSamPosition; }
-    qreal samBeamRange() const { return mSamBeamRange; }
-    qreal samBeamAngle() const { return mSamBeamAngle; }
-
 signals:
-    void beamPositionUpdated();
-
-private:
-    QGeoCoordinate mSamPosition;
-    qreal mSamBeamRange = 0.0;
-    qreal mSamBeamAngle = 0.0;
+    void beamParametersUpdated(const QGeoCoordinate &coordinate,
+                               qreal range, qreal angle);
 };
 
 #endif // FLIGHTPOSITIONSNOTIFIER_H
