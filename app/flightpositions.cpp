@@ -27,7 +27,7 @@ void FlightPositions::sendFlightPoints(const QGeoCoordinate &samCoordinate,
                 continue;
             }
 
-            QString data = QString("%1,%2").arg(coordinate.latitude()).arg(coordinate.longitude());
+            QString data = QString("%1,%2").arg(distance).arg(azimuth);
             writeDatagram(data.toUtf8(), QHostAddress::LocalHost, 45455);
         }
     }

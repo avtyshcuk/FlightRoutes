@@ -27,7 +27,7 @@ MapQuickItem {
             hoverEnabled: true
 
             onEntered: {
-                if (!flightPlayer.isStopped) {
+                if (!flightPlayer.isStopped || flightRegistry.hasActiveFlight) {
                     return;
                 }
 
@@ -39,7 +39,7 @@ MapQuickItem {
             }
 
             onExited: {
-                if (!flightPlayer.isStopped) {
+                if (!flightPlayer.isStopped || !flightRegistry.isBeingModified) {
                     return;
                 }
 
