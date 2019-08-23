@@ -26,6 +26,8 @@ void FlightPositions::sendFlightPoints(const QGeoCoordinate &samCoordinate,
             if (!isDatagramNeeded(i)) {
                 continue;
             }
+            distance = randomize(distance, DISTANCE_MAX_ERROR);
+            azimuth = randomize(azimuth, AZIMUTH_MAX_ERROR);
 
             QString data = QString("%1,%2").arg(distance).arg(azimuth);
             writeDatagram(data.toUtf8(), QHostAddress::LocalHost, 45455);
@@ -58,4 +60,12 @@ bool FlightPositions::isDatagramNeeded(int pointIndex)
     }
 
     return false;
+}
+
+qreal FlightPositions::randomize(qreal value, qreal maxError)
+{
+    auto deviation = QRandomGenerator::global()->generateDouble();
+    auto sign = QRandomGenerator::global()->generateDouble() > 0.5 ? -1 : 1;
+
+    return value + sign * deviation * maxError;
 }

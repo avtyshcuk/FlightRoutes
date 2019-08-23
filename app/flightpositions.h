@@ -18,12 +18,15 @@ public slots:
                           qreal range, qreal angle);
 private:
     bool isDatagramNeeded(int pointIndex);
+    qreal randomize(qreal value, qreal maxError);
 
 private:
     qreal mCurrentBeamAngle = 0.0;
     QVariantList mPoints;
     QHash<int, int> mLostDatagramsCounters;
-    const int MAX_DATAGRAM_LOST_COUNT = 3;
+    constexpr static int MAX_DATAGRAM_LOST_COUNT = 3;
+    constexpr static qreal DISTANCE_MAX_ERROR = 200.0;
+    constexpr static qreal AZIMUTH_MAX_ERROR = 0.2;
 };
 
 #endif // FLIGHTPOSITIONS_H
