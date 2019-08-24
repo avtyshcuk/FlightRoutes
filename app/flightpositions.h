@@ -24,7 +24,7 @@ private:
     qreal mCurrentBeamAngle = 0.0;
     QVariantList mPoints;
     QHash<int, int> mLostDatagramsCounters;
-    constexpr static int MAX_DATAGRAM_LOST_COUNT = 3;
+    constexpr static int MAX_DATAGRAM_LOST_COUNT = 2;
     constexpr static qreal DISTANCE_MAX_ERROR = 200.0;
     constexpr static qreal AZIMUTH_MAX_ERROR = 0.2;
 };

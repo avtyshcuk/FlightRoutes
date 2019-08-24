@@ -51,7 +51,7 @@ bool FlightPositions::isDatagramNeeded(int pointIndex)
     }
 
     auto randomValue = QRandomGenerator::global()->generateDouble();
-    if (randomValue > 0.2) {
+    if (randomValue > 0.1) {
         return true;
     }
 
